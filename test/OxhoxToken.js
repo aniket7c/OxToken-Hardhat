@@ -1,6 +1,5 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat"); // ✅ Required import for ethers
-
+const { ethers } = require("hardhat"); 
 describe("OxToken contract", function () {
   // Global vars
   let Token;
@@ -32,14 +31,14 @@ describe("OxToken contract", function () {
     it("Should set the max capped supply to the argument provided during deployment", async function () {
       const cap = await oxhoxToken.cap();
       expect(cap).to.equal(
-        ethers.BigNumber.from(tokenCap).mul(ethers.BigNumber.from(10).pow(18)) // ✅ Adjusted for decimals
+        ethers.BigNumber.from(tokenCap).mul(ethers.BigNumber.from(10).pow(18)) 
       );
     });
 
     it("Should set the blockReward to the argument provided during deployment", async function () {
       const blockReward = await oxhoxToken.blockReward();
       expect(blockReward).to.equal(
-        ethers.BigNumber.from(tokenBlockReward).mul(ethers.BigNumber.from(10).pow(18)) // ✅ Adjusted for decimals
+        ethers.BigNumber.from(tokenBlockReward).mul(ethers.BigNumber.from(10).pow(18)) 
       );
     });
   });
