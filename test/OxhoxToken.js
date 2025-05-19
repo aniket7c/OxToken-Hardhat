@@ -31,62 +31,60 @@ describe("OxToken contract", function () {
     it("Should set the max capped supply to the argument provided during deployment", async function () {
       const cap = await oxhoxToken.cap();
       expect(cap).to.equal(
-        ethers.BigNumber.from(tokenCap).mul(ethers.BigNumber.from(10).pow(18)) 
+        ethers.parseUnits(tokenCap.toString(), 18)
       );
     });
 
-    it("Should set the blockReward to the argument provided during deployment", async function () {
-      const blockReward = await oxhoxToken.blockReward();
-      expect(blockReward).to.equal(
-        ethers.BigNumber.from(tokenBlockReward).mul(ethers.BigNumber.from(10).pow(18)) 
-      );
-    });
+  it("Should set the blockReward to the argument provided during deployment", async function () {
+    const blockReward = await oxhoxToken.blockReward();
+    expect(blockReward).to.equal(
+      ethers.parseUnits(tokenBlockReward.toString(), 18)
+    );
+  });
   });
 
-  describe("Transactions", function () {
-    it("Should transfer tokens between accounts", async function () {
-      // Transfer 50 tokens (with decimals)
-      const transferAmount = ethers.BigNumber.from(50).mul(ethers.BigNumber.from(10).pow(18));
-      await oxhoxToken.transfer(addr1.address, transferAmount);
+describe("Transactions", function () {
+  it("Should transfer tokens between accounts", async function () {
+    const transferAmount = ethers.parseUnits("50", 18);
 
-      const addr1Balance = await oxhoxToken.balanceOf(addr1.address);
-      expect(addr1Balance).to.equal(transferAmount);
+    await oxhoxToken.transfer(addr1.address, transferAmount);
 
-      // Transfer from addr1 to addr2
-      await oxhoxToken.connect(addr1).transfer(addr2.address, transferAmount);
+    const addr1Balance = await oxhoxToken.balanceOf(addr1.address);
+    expect(addr1Balance).to.equal(transferAmount);
 
-      const addr2Balance = await oxhoxToken.balanceOf(addr2.address);
-      expect(addr2Balance).to.equal(transferAmount);
-    });
+    await oxhoxToken.connect(addr1).transfer(addr2.address, transferAmount);
 
-    it("Should fail if sender doesn't have enough tokens", async function () {
-      const initialOwnerBalance = await oxhoxToken.balanceOf(owner.address);
-
-      // addr1 has 0 tokens
-      const oneToken = ethers.BigNumber.from(1).mul(ethers.BigNumber.from(10).pow(18));
-      await expect(
-        oxhoxToken.connect(addr1).transfer(owner.address, oneToken)
-      ).to.be.reverted;
-
-      expect(await oxhoxToken.balanceOf(owner.address)).to.equal(initialOwnerBalance);
-    });
-
-    it("Should update balances after transfers", async function () {
-      const initialOwnerBalance = await oxhoxToken.balanceOf(owner.address);
-      const transferAmount1 = ethers.BigNumber.from(100).mul(ethers.BigNumber.from(10).pow(18));
-      const transferAmount2 = ethers.BigNumber.from(50).mul(ethers.BigNumber.from(10).pow(18));
-
-      await oxhoxToken.transfer(addr1.address, transferAmount1);
-      await oxhoxToken.transfer(addr2.address, transferAmount2);
-
-      const finalOwnerBalance = await oxhoxToken.balanceOf(owner.address);
-      expect(finalOwnerBalance).to.equal(initialOwnerBalance.sub(transferAmount1).sub(transferAmount2));
-
-      const addr1Balance = await oxhoxToken.balanceOf(addr1.address);
-      expect(addr1Balance).to.equal(transferAmount1);
-
-      const addr2Balance = await oxhoxToken.balanceOf(addr2.address);
-      expect(addr2Balance).to.equal(transferAmount2);
-    });
+    const addr2Balance = await oxhoxToken.balanceOf(addr2.address);
+    expect(addr2Balance).to.equal(transferAmount);
   });
+
+  it("Should fail if sender doesn't have enough tokens", async function () {
+    const initialOwnerBalance = await oxhoxToken.balanceOf(owner.address);
+
+    const oneToken = ethers.parseUnits("1", 18);
+    await expect(
+      oxhoxToken.connect(addr1).transfer(owner.address, oneToken)
+    ).to.be.reverted;
+
+    expect(await oxhoxToken.balanceOf(owner.address)).to.equal(initialOwnerBalance);
+  });
+
+  it("Should update balances after transfers", async function () {
+    const initialOwnerBalance = await oxhoxToken.balanceOf(owner.address);
+    const transferAmount1 = ethers.parseUnits("100", 18);
+    const transferAmount2 = ethers.parseUnits("50", 18);
+
+    await oxhoxToken.transfer(addr1.address, transferAmount1);
+    await oxhoxToken.transfer(addr2.address, transferAmount2);
+
+    const finalOwnerBalance = await oxhoxToken.balanceOf(owner.address);
+    expect(finalOwnerBalance).to.equal(initialOwnerBalance - transferAmount1 - transferAmount2);
+
+    const addr1Balance = await oxhoxToken.balanceOf(addr1.address);
+    expect(addr1Balance).to.equal(transferAmount1);
+
+    const addr2Balance = await oxhoxToken.balanceOf(addr2.address);
+    expect(addr2Balance).to.equal(transferAmount2);
+  });
+});
 });
